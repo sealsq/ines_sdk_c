@@ -1,0 +1,6 @@
+[submodule "lib/wolfMQTT"]
+	path = lib/wolfMQTT
+	url = https://github.com/wolfSSL/wolfMQTT.git
+[submodule "extlibs/libwolfssl/wolfssl"]
+	path = extlibs/libwolfssl/wolfssl
+	url = https://github.com/wolfSSL/wolfssl.git
