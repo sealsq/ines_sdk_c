@@ -346,7 +346,7 @@ char *generateCSRBody(char *templateId, char *subjects, char *CSR, int validityP
     char *bodytemplate = "{\"template_id\": %s,\"subject\": %s,\"san\":[{\"name\": \"dns\",\"value\": \"wisekeydemo.com\"}], \"csr\": \"%s\" ,\"passphrase\": \"\",\"include_chain_in_pkcs12\": true, \"valid_from\": \"\", \"validity_period\": %d}";
 
     char csrcpy[4096];
-    strcpy(&csrcpy,CSR);
+    strcpy((char*)&csrcpy,CSR);
 
     const char *separators = "\r\n";
     char *CSRtreated = malloc(strlen(CSR) + 10);
