@@ -28,6 +28,7 @@ enum CONFIG_FILE_TYPE
    CONFIG_FILE_ZTP_REST = 2,
    CONFIG_FILE_ZTP_EST = 3,
    CONFIG_FILE_CLOUD = 4,
+   CONFIG_FILE_SOFTWARE_SIGNING =5,
 };
 
 /* Nonzero if ini_handler callback should accept lineno parameter. */
@@ -207,6 +208,13 @@ INI_API int ini_parse_string(const char* string, ini_handler handler, void* user
         char *CLIENT_CERT_PATH;
         char *CLIENT_KEY_PATH;
         char *USE_VAULTIC;
+        char *CA_CERT;
+        char *CA_CERT_PATH;
+        char *SOFTWARE_PACKAGE_PATH;
+        char *SOFTWARE_BINARY_NAME;
+        char *SOFTWARE_BINARY_PATH;
+        char *SOFTWARE_MANIFEST_NAME;
+        char *SOFTWARE_MANIFEST_PATH;
     } config_values_t;
 
         /**

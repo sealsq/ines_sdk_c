@@ -33,7 +33,7 @@ extern "C"
      */
     int httpsRequestWolfssl(char*clientCertPath,char*clientKeyPath);
 
-    /** @brief Format the request and lauch the httpsRequest_task
+    /** @brief Format the request and lauch the httpsRequestWolfssl and wait for the response
      *
      *  @param clientCertPath Path to client Certificate to use, can be NULL if you use VAULT_IC Certificate
      *  @param clientKeyPath Path to client Key to use, can be NULL if you use VAULT_IC Key

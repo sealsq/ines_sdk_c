@@ -9,7 +9,6 @@ SPDX-License-Identifier: Apache-2.0*/
 /**
  * \file wisekey_Tools.c
  * \brief Useful tools to use Ines SDK
- * \author BEDIOU
  * \version 1.3
  * \date 09/10/2023
  *
@@ -50,7 +49,7 @@ char *createDeviceName(config_values_t config)
 
     if(!config.DEVICE_NAME_PREFIX)
     {
-        device_name = malloc(strlen("WKEY_ZTOUCH_DEFAULT_NAME") + 1);
+        device_name = malloc(strlen("WKEY_ZTOUCH_DEFAULT_NAME") + 16);
         wkey_log(LOG_INFO,"DEFAULT NAME");
         sprintf(device_name,"%s" ,"WKEY_ZTOUCH_DEFAULT_NAME");
         return device_name;
@@ -132,7 +131,7 @@ char *inesRawCartificatetoFormatedcert(char *rawCert)
 {
     const char *separators = "\\";
     char *tempRawCert = malloc(strlen(rawCert) + 1);
-    memset(tempRawCert, 0, strlen(tempRawCert));
+    memset(tempRawCert, 0, strlen(rawCert) + 1);
 
     char *strseparated = strtok(rawCert, separators);
     char *template = "-----BEGIN CERTIFICATE-----\n%s\n-----END CERTIFICATE-----\n";
@@ -227,24 +226,27 @@ json_value* convertStringIntoJsontype(char* string)
     json_value* value;
 
     file_size = strlen(string);
-    char*cpy;
+    char*cursor;
+    char*stringCopy=malloc(strlen(string)+2);
 
     if(string)
     {
-        cpy = strstr(string,"{");
-        sprintf(string,cpy);
-        cpy = strrchr(string,'}');
-        sprintf(cpy+1,"%c",'\0');
+        cursor = strstr(string,"{");
+        sprintf(stringCopy,cursor);
+        cursor = strrchr(stringCopy,'}');
+        sprintf(cursor+1,"%c",'\0');
     }
     else
         return NULL;
         
-    value = json_parse(string,file_size);
+    value = json_parse(stringCopy,file_size);
 
     if (value == NULL) {
             fprintf(stderr, "Unable to parse data\n");
             return NULL;
     }
+
+    free(stringCopy);
 
     return value;
 }
@@ -361,9 +363,7 @@ void wkey_log(int type, char *fmt, ...)
         break;
 
     case LOG_DEBUGING:
-#ifdef INES_SDK_DEBUG
         printf("\e[1;37;45mSEAL SQ DEBUGING INFO : ");
-#endif
         break;
         
     case LOG_SUCCESS:
@@ -607,6 +607,7 @@ int generatekeyAndCSR(config_values_t config, char**CSR, char**subjects)
     ecc_key pKey;
     static CertName certDefaultName;
     deviceName = createDeviceName(config);
+    int ret;
     
     memcpy(certDefaultName.country, config.DEVICE_COUNTRY, strlen(config.DEVICE_COUNTRY));
     certDefaultName.countryEnc = CTC_PRINTABLE;
@@ -627,14 +628,14 @@ int generatekeyAndCSR(config_values_t config, char**CSR, char**subjects)
         wkey_log(LOG_STEP_INDICATOR, "INES AGENT - Generate Key and CSR (Certificate Signin Request) with WolfSSL generator");
         generateAndSavePrivateEccKey(&pKey, config.SECURE_KEY_PATH);
 
-        if (wc_ecc_check_key(&pKey) != MP_OKAY)
+        if ((ret=wc_ecc_check_key(&pKey)) != MP_OKAY)
         {
-            wkey_log(LOG_ERROR, "Error while generating private Key");
+            wkey_log(LOG_ERROR, "Error while generating private Key %d",ret);
             return -1;
         }    
         
         *CSR = generateCSR(&pKey, &certDefaultName);
-
+        wc_ecc_free(&pKey);
     }
 
     if (deviceName)

@@ -579,7 +579,7 @@ extern "C" {
 #define NO_DSA
 #define NO_RC4
 #define NO_MD4
-#define NO_PWDBASED
+//#define NO_PWDBASED
 //#define NO_CODING
 //#define NO_ASN_TIME
 //#define NO_CERTS

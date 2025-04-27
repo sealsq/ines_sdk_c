@@ -41,11 +41,6 @@ extern "C"
      */
     char *createDeviceName(config_values_t config);
 
-    /**
-     * @brief Restart ESP32
-     */
-    void rebootEsp();
-
     /** @brief Open file and place it in a buffer.
      *
      *  @param path path of file to open.
@@ -62,7 +57,7 @@ extern "C"
      */
     int writeAndSaveFile(char *name, char *content, int size);
 
-    /** @brief Verify presence of certificate, certificate chain and key
+    /** @brief Verify presence of certificate and key
      *
      *  @param config 
      *  @param need_check_key TRUE is you want to verify if private key exit, put false if you only want to verify certificate presence (VAULTIC use for example) 

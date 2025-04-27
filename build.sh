@@ -16,8 +16,9 @@ Help()
    echo "This script allow you to run instalation and working Zero Touch Provisioning demo"
    echo
    echo "options:"
-   echo "-i     Install requirements"
-   echo "-v     Install Vault-IC into wolfssl"
+   echo "-i     First instalation, this will install cmake and Python requierements"
+   echo "-w     Force compilation of wolfssl Library"
+   echo "-b     This will force the building of library Ines SDK"
    echo "-h     Print this Help."
 }
 
@@ -77,7 +78,7 @@ while getopts ":hbiwv" option; do
          Help
          exit;;
       i) # Install Prerequities
-		 echo "Install requirements"
+		 echo "Install Requierment"
          install
          exit;;
       v) # Install Prerequities

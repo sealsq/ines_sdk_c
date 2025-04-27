@@ -52,13 +52,14 @@ char* apiREST_process(config_values_t config, char* method,char* apiname, char* 
 
     fillResultStruct(INES_RESPONSE_TYPE_AUTHENTICATION,&authentication_Struct,value);
 
+    
+    json_value_free (value);
+
     if(strcmp(authentication_Struct.access_token,"NULL")==0)
     {
         wkey_log(LOG_ERROR, "NO ACCESS TOKEN");
         return NULL;
     }
-
-    wkey_log(LOG_INFO, "SENDING REQUEST");
 
     rawResponse = inesApi(config.CLIENT_CERT_PATH,config.CLIENT_KEY_PATH,config.INES_REST_SERVER_URL,API_REST,IOT_API_REST_PATH_PREFIX,config.INES_ORG_ID,authentication_Struct.access_token,method,apiname,custom_suffix,body,use_vaultic,key_index,cert_index);
 
