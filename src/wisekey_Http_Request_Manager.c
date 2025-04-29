@@ -222,7 +222,7 @@ int httpsRequestWolfssl(char*clientCertPath,char*clientKeyPath)
     /* Send the message to the server */
     if ((ret = wolfSSL_write(ssl, Handler_https.message, strlen(Handler_https.message))) != strlen(Handler_https.message)) {
         fprintf(stderr, "ERROR: failed to write entire message\n");
-        fprintf(stderr, "%d bytes of %d bytes were sent", ret, strlen(Handler_https.message));
+        fprintf(stderr, "%d bytes of %d bytes were sent", ret, (int) strlen(Handler_https.message));
         wolfSSL_free(ssl);
         ret = -1;
         return ret;
@@ -236,23 +236,19 @@ int httpsRequestWolfssl(char*clientCertPath,char*clientKeyPath)
         wolfSSL_free(ssl);        
         fprintf(stderr, "ERROR: SEAL SQ failed to read err = %d\n",ret);
         ret = -1;
+        free(response);
         return ret; 
     }
     
     int err;
-    int responseSize;
+    int responseSize=0;
 
     while(ret==BUFFER_SIZE-1)
     {
-        /*if ((ret = wolfSSL_Rehandshake(ssl)) != WOLFSSL_SUCCESS) {
-            err = wolfSSL_get_error(ssl, 0);
-            responseSize = strlen(response);
-            response = realloc(response,responseSize + BUFFER_SIZE +1);*/
-
             if (err == WOLFSSL_ERROR_WANT_READ ||
                 err == WOLFSSL_ERROR_WANT_WRITE ||
                 err == APP_DATA_READY) {
-                //do {
+                    
                 if (err == APP_DATA_READY) {
                         if ((ret = wolfSSL_read(ssl, response+responseSize,
                             BUFFER_SIZE-1)) < 0) {
@@ -263,16 +259,19 @@ int httpsRequestWolfssl(char*clientCertPath,char*clientKeyPath)
                 err = wolfSSL_get_error(ssl, 0);
 
             }
-        //}
     }
 
     responseSize+=strlen(response)+1;
 
+    
     Handler_https.response=malloc(responseSize);
     sprintf(Handler_https.response,"%s",response);
-        
+     
+    free(response);
+    wolfSSL_CTX_free(ctx);
     wolfSSL_shutdown(ssl);
-    
+    wolfSSL_free(ssl);
+
     #if defined(TARGETCHIP_VAULTIC_292)||defined(TARGETCHIP_VAULTIC_408)
     /* Close connection with VaultIC */
     if(vlt_tls_close()!=0) {
@@ -280,8 +279,7 @@ int httpsRequestWolfssl(char*clientCertPath,char*clientKeyPath)
     }
     #endif /*defined(TARGETCHIP_VAULTIC_292)||defined(TARGETCHIP_VAULTIC_408)*/
 
-    free(response);
-
+    
     Handler_https.status=0;
     ret = 0;
     return ret;
@@ -295,7 +293,7 @@ char *generateHttpHeader(char *host, int protocol,char *api, char *body, char *a
 
     if(body){
         contentLen = malloc(11);
-        sprintf(contentLen, "%d", strlen(body));
+        sprintf(contentLen, "%d",(int) strlen(body));
     }
     char *contentType;
 
@@ -347,7 +345,7 @@ char *generateCSRBody(char *templateId, char *subjects, char *CSR, int validityP
 {
     char *bodytemplate = "{\"template_id\": %s,\"subject\": %s,\"san\":[{\"name\": \"dns\",\"value\": \"wisekeydemo.com\"}], \"csr\": \"%s\" ,\"passphrase\": \"\",\"include_chain_in_pkcs12\": true, \"valid_from\": \"\", \"validity_period\": %d}";
 
-    char csrcpy[strlen(CSR)+1];
+    char csrcpy[4096];
     strcpy((char*)&csrcpy,CSR);
 
     const char *separators = "\r\n";
@@ -417,7 +415,7 @@ char *httpsRequest(char*clientCertPath,char*clientKeyPath,char *host,char* metho
     {
         strcat(Handler_https.message, body);
     }
-    wkey_log(LOG_DEBUGING," **********  Sended ********** \n%s\n**********  End Sended **********",Handler_https.message);
+    //wkey_log(LOG_DEBUGING," **********  Sended ********** \n%s\n**********  End Sended **********",Handler_https.message);
 
     if(httpsRequestWolfssl(clientCertPath,clientKeyPath)!=0)
     {
@@ -430,7 +428,7 @@ char *httpsRequest(char*clientCertPath,char*clientKeyPath,char *host,char* metho
             break;
     }
 
-    wkey_log(LOG_DEBUGING," **********  Received ********** \n%s\n**********  End Received **********",Handler_https.response);
+    //wkey_log(LOG_DEBUGING," **********  Received ********** \n%s\n**********  End Received **********",Handler_https.response);
 
     if(Handler_https.message)
         free(Handler_https.message);

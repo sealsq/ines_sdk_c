@@ -373,6 +373,14 @@ int parse(void *user, const char *section, const char *name, const char *value)
         pconfig->CLIENT_KEY = strdup(value);
     else if (MATCH(set, "USE_VAULTIC"))
         pconfig->USE_VAULTIC = strdup(value);
+    else if (MATCH(set, "SOFTWARE_PACKAGE_PATH"))
+        pconfig->SOFTWARE_PACKAGE_PATH = strdup(value);
+    else if (MATCH(set, "SOFTWARE_BINARY_NAME"))
+        pconfig->SOFTWARE_BINARY_NAME = strdup(value);
+    else if (MATCH(set, "CA_CERT"))
+        pconfig->CA_CERT = strdup(value);
+    else if (MATCH(set, "SOFTWARE_MANIFEST_NAME"))
+        pconfig->SOFTWARE_MANIFEST_NAME = strdup(value);
     else
         return 1;
     return 0;
@@ -390,54 +398,84 @@ int parseConfigFile(char* pathToFile, config_values_t*handler){
     
     /*if(verifyConfigStruc(handler)!=0)
         return -1;*/
-        
-    if(handler->DEVICE_CERT)
-        if (strlen(handler->DEVICE_CERT)<1)
-            handler->DEVICE_CERT_PATH = NULL;
-        else
-            handler->DEVICE_CERT_PATH = join(handler->SECURE_CERT_PATH, handler->DEVICE_CERT);
-    else
-        handler->DEVICE_CERT_PATH = NULL;
-
-    if(handler->CLIENT_CERT)
-        if (strlen(handler->CLIENT_CERT)<1)
-            handler->CLIENT_CERT_PATH = NULL;
-        else
-            handler->CLIENT_CERT_PATH = join(handler->SECURE_CERT_PATH, handler->CLIENT_CERT);
-    else
-        handler->CLIENT_CERT_PATH = NULL;
-
-    if(handler->CLIENT_KEY)
-        if (strlen(handler->CLIENT_KEY)<1)
-            handler->CLIENT_KEY_PATH = NULL;
-        else
-            handler->CLIENT_KEY_PATH = join(handler->SECURE_CERT_PATH, handler->CLIENT_KEY);
-    else
-        handler->CLIENT_KEY_PATH = NULL;
     
-    if(handler->FACTORY_CERT)
-        if (strlen(handler->FACTORY_CERT)<1)
+    if(handler->SECURE_CERT_PATH){
+        if(handler->DEVICE_CERT)
+            if (strlen(handler->DEVICE_CERT)<1)
+                handler->DEVICE_CERT_PATH = NULL;
+            else
+                handler->DEVICE_CERT_PATH = join(handler->SECURE_CERT_PATH, handler->DEVICE_CERT);
+        else
+            handler->DEVICE_CERT_PATH = NULL;
+
+        if(handler->CA_CERT)
+            if (strlen(handler->CA_CERT)<1)
+                handler->CA_CERT_PATH = NULL;
+            else
+                handler->CA_CERT_PATH = join(handler->SECURE_CERT_PATH, handler->CA_CERT);
+        else
+            handler->CA_CERT_PATH = NULL;
+
+        if(handler->CLIENT_CERT)
+            if (strlen(handler->CLIENT_CERT)<1)
+                handler->CLIENT_CERT_PATH = NULL;
+            else
+                handler->CLIENT_CERT_PATH = join(handler->SECURE_CERT_PATH, handler->CLIENT_CERT);
+        else
+            handler->CLIENT_CERT_PATH = NULL;
+
+        if(handler->CLIENT_KEY)
+            if (strlen(handler->CLIENT_KEY)<1)
+                handler->CLIENT_KEY_PATH = NULL;
+            else
+                handler->CLIENT_KEY_PATH = join(handler->SECURE_CERT_PATH, handler->CLIENT_KEY);
+        else
+            handler->CLIENT_KEY_PATH = NULL;
+        
+        if(handler->FACTORY_CERT)
+            if (strlen(handler->FACTORY_CERT)<1)
+                handler->FACTORY_CERT_PATH = NULL;
+            else
+                handler->FACTORY_CERT_PATH = join(handler->SECURE_CERT_PATH, handler->FACTORY_CERT);
+        else
             handler->FACTORY_CERT_PATH = NULL;
-        else
-            handler->FACTORY_CERT_PATH = join(handler->SECURE_CERT_PATH, handler->FACTORY_CERT);
-    else
-        handler->FACTORY_CERT_PATH = NULL;
 
-    if(handler->FACTORY_KEY)
-        if (strlen(handler->FACTORY_KEY)<1)
+        if(handler->FACTORY_KEY)
+            if (strlen(handler->FACTORY_KEY)<1)
+                handler->FACTORY_KEY_PATH = NULL;
+            else
+                handler->FACTORY_KEY_PATH = join(handler->SECURE_CERT_PATH, handler->FACTORY_KEY);
+        else
             handler->FACTORY_KEY_PATH = NULL;
-        else
-            handler->FACTORY_KEY_PATH = join(handler->SECURE_CERT_PATH, handler->FACTORY_KEY);
-    else
-        handler->FACTORY_KEY_PATH = NULL;
 
-    if(handler->SECURE_KEY)
-        if (strlen(handler->SECURE_KEY)<1)
-            handler->SECURE_KEY_PATH = NULL;
+        if(handler->SECURE_KEY)
+            if (strlen(handler->SECURE_KEY)<1)
+                handler->SECURE_KEY_PATH = NULL;
+            else
+                handler->SECURE_KEY_PATH = join(handler->SECURE_CERT_PATH, handler->SECURE_KEY);
         else
-            handler->SECURE_KEY_PATH = join(handler->SECURE_CERT_PATH, handler->SECURE_KEY);
-    else
-        handler->SECURE_KEY_PATH = NULL;
+            handler->SECURE_KEY_PATH = NULL;
+    }
+
+    if(handler->SOFTWARE_PACKAGE_PATH){
+        if(handler->SOFTWARE_BINARY_NAME)
+            if (strlen(handler->SOFTWARE_BINARY_NAME)<1)
+                handler->SOFTWARE_BINARY_PATH = NULL;
+            else
+                handler->SOFTWARE_BINARY_PATH = join(handler->SOFTWARE_PACKAGE_PATH, handler->SOFTWARE_BINARY_NAME);
+        else
+            handler->SOFTWARE_BINARY_PATH = NULL;
+    }
+
+    if(handler->SOFTWARE_PACKAGE_PATH){
+        if(handler->SOFTWARE_MANIFEST_NAME)
+            if (strlen(handler->SOFTWARE_MANIFEST_NAME)<1)
+                handler->SOFTWARE_MANIFEST_PATH = NULL;
+            else
+                handler->SOFTWARE_MANIFEST_PATH = join(handler->SOFTWARE_PACKAGE_PATH, handler->SOFTWARE_MANIFEST_NAME);
+        else
+            handler->SOFTWARE_MANIFEST_PATH = NULL;
+    }
 
     if(handler->AWS_IOT_ENDPOINT)
         if (strlen(handler->AWS_IOT_ENDPOINT)<1)
@@ -479,6 +517,12 @@ int initConfigFile(config_values_t*handler){
     handler->AWS_MQTT_ENDPOINT_URI=NULL;
     handler->PROTOCOL=NULL;
     handler->USE_VAULTIC="FALSE";
+    handler->CA_CERT=NULL;
+    handler->CA_CERT_PATH=NULL;
+    handler->SOFTWARE_PACKAGE_PATH=NULL;
+    handler->SOFTWARE_BINARY_NAME=NULL;
+    handler->SOFTWARE_BINARY_PATH=NULL;
+    handler->SOFTWARE_MANIFEST_PATH=NULL;
     return 0;
 }
 
@@ -642,6 +686,73 @@ int verifyConfigStruc(int configtype, config_values_t *handler)
         }
     }
 
+    if(configtype==CONFIG_FILE_SOFTWARE_SIGNING)
+    {
+        if (checkConfigValue(handler->INES_ORG_ID)<0)
+        {
+            handler->INES_ORG_ID=NULL;
+            printf("Ines Config : missing value for INES_ORG_ID\r\n");
+            ret = -1;
+        }
+
+        if (checkConfigValue(handler->SECURE_CERT_PATH)<0)
+        {
+            handler->SECURE_CERT_PATH=NULL;
+            printf("Ines Config : missing value for SECURE_CERT_PATH\r\n");
+            ret = -1;
+        }
+
+        if (checkConfigValue(handler->CLIENT_CERT)<0)
+        {
+            handler->CLIENT_CERT=NULL;
+            printf("Ines Config : missing value for CLIENT_CERT\r\n");
+            ret = -1;
+        }
+
+        if (checkConfigValue(handler->CLIENT_KEY)<0)
+        {
+            handler->CLIENT_KEY=NULL;
+            printf("Ines Config : missing value for CLIENT_KEY\r\n");
+            ret = -1;
+        }
+
+        if (checkConfigValue(handler->CA_CERT)<0)
+        {
+            handler->CA_CERT=NULL;
+            printf("Ines Config : missing value for CA_CERT\r\n");
+            ret = -1;
+        }
+
+        if (checkConfigValue(handler->SOFTWARE_PACKAGE_PATH)<0)
+        {
+            handler->SOFTWARE_PACKAGE_PATH=NULL;
+            printf("Ines Config : missing value for SOFTWARE_PACKAGE_PATH\r\n");
+            ret = -1;
+        }
+
+        if (checkConfigValue(handler->SOFTWARE_BINARY_NAME)<0)
+        {
+            handler->SOFTWARE_BINARY_NAME=NULL;
+            printf("Ines Config : missing value for SOFTWARE_BINARY_NAME\r\n");
+            ret = -1;
+        }
+
+        if (checkConfigValue(handler->SOFTWARE_MANIFEST_NAME)<0)
+        {
+            handler->SOFTWARE_MANIFEST_NAME=NULL;
+            printf("Ines Config : missing value for SOFTWARE_MANIFEST_NAME\r\n");
+            ret = -1;
+        }
+
+        if (checkConfigValue(handler->INES_REST_SERVER_URL)<0)
+        {
+            handler->INES_REST_SERVER_URL=NULL;
+            printf("Ines Config : missing value for INES_REST_SERVER_URL\r\n");
+            ret = -1;
+        }
+
+    }
+
     return ret;
 }
 
@@ -697,5 +808,21 @@ int freeConfigStruct(config_values_t*handler){
         free(handler->CLIENT_CERT_PATH);
     if(handler->CLIENT_KEY_PATH)
         free(handler->CLIENT_KEY_PATH);
+    if(handler->CA_CERT)
+        free(handler->CA_CERT);
+    if(handler->CA_CERT_PATH)
+        free(handler->CA_CERT_PATH);
+    if(handler->SOFTWARE_PACKAGE_PATH)
+        free(handler->SOFTWARE_PACKAGE_PATH);
+    if(handler->SOFTWARE_BINARY_NAME)
+        free(handler->SOFTWARE_BINARY_NAME);
+    if(handler->SOFTWARE_MANIFEST_NAME)
+        free(handler->SOFTWARE_MANIFEST_NAME);
+    if(handler->SOFTWARE_BINARY_PATH)
+        free(handler->SOFTWARE_BINARY_PATH);
+    if(handler->SOFTWARE_MANIFEST_PATH)
+        free(handler->SOFTWARE_MANIFEST_PATH);
+    if(handler->USE_VAULTIC)
+        free(handler->USE_VAULTIC);
     return 0;
 }

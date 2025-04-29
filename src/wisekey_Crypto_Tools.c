@@ -112,6 +112,8 @@ int generateAndSavePrivateEccKey(ecc_key *ecKey, char *outFilePath)
         return ret;
     }
 
+    wc_FreeRng(&rng);
+
     ret = wc_EccKeyToDer(ecKey, der, LARGE_TEMP_SZ);
     if (ret <= 0)
     {
@@ -134,7 +136,6 @@ int generateAndSavePrivateEccKey(ecc_key *ecKey, char *outFilePath)
     pemSz = ret;
     snprintf(outFile, sizeof(outFile), outFilePath);
 
-    wkey_log(LOG_INFO, "ECC KEY generated and saved into \"%s\"\n", outFile);
     file = fopen(outFile, "wb");
 
     if (file)
@@ -148,7 +149,8 @@ int generateAndSavePrivateEccKey(ecc_key *ecKey, char *outFilePath)
             fclose(file);
             return ret;
         }
-
+        else
+            wkey_log(LOG_INFO, "ECC KEY generated and saved into \"%s\"\n", outFile);
         fclose(file);
     }
 
@@ -296,7 +298,6 @@ char *generateCSRwithVAULTIC(ecc_key *ecKey,CertName* certDefaultName)
 	}
 #else	
 	wkey_log(LOG_INFO,"[vlt_tls_read_operational_pub_key_P256 TARGETCHIP_VAULTIC_292]\n");    
-    vlt_tls_select_static_priv_key(VAULTIC_OPERATIONAL_KEY_INDEX);
     if (vlt_tls_read_operational_pub_key_P256(au8Qx, au8Qy) !=0) {
         wkey_log(LOG_ERROR,"VAULTIC 292 vlt_tls_read_operational_pub_key_P256\n");
         return NULL;
@@ -354,15 +355,14 @@ char *generateCSRwithVAULTIC(ecc_key *ecKey,CertName* certDefaultName)
     wkey_log(LOG_INFO,"[vlt_tls_compute_signature_P256 TARGETCHIP_VAULTIC_408]\n");
     if (err=vlt_tls_compute_signature_P256(ECC_OPERATIONAL_Privk_Index,hash, P256_BYTE_SZ, sig_R , sig_S) !=0) {
         wkey_log(LOG_ERROR,"ERROR: vlt_tls_compute_signature_P256 err=%d",err);
-        wkey_log(LOG_ERROR,"ERROR: WC_HW_E");
         return NULL;
     }
 #endif /*TARGETCHIP_VAULTIC_408*/
 
 #ifdef TARGETCHIP_VAULTIC_292 	
-	wkey_log(LOG_INFO,"[vlt_tls_read_pub_key_P256 TARGETCHIP_VAULTIC_292]\n");    
-    if (err=WOLFSSL_VAULTIC_EccSignCb(NULL,hash, P256_BYTE_SZ, outVaultic,&outSz,NULL,0,NULL) !=0) {
-         wkey_log(LOG_ERROR,"WOLFSSL_VAULTIC_EccSignCb %d\n",err);
+	wkey_log(LOG_INFO,"[vlt_tls_read_pub_key_P256 TARGETCHIP_VAULTIC_292]\n");  
+    if (err=vlt_tls_compute_signature_P256(VAULTIC_OPERATIONAL_KEY_INDEX,hash, P256_BYTE_SZ, sig_R , sig_S) !=0) {
+        wkey_log(LOG_ERROR,"WOLFSSL_VAULTIC_EccSignCb %d\n",err);
         return NULL;
     }
 #endif /*TARGETCHIP_VAULTIC_292*/
@@ -372,8 +372,6 @@ char *generateCSRwithVAULTIC(ecc_key *ecKey,CertName* certDefaultName)
         wkey_log(LOG_ERROR,"ERROR: wc_ecc_rs_raw_to_sig err=%d",err);
         return NULL;
     }
-
-    wkey_log(LOG_DEBUGING,"AFter: wc_ecc_rs_raw_to_sig\n");
 
     derSz = AddSignature(der, req->bodySz, outVaultic, outSz,req->sigType);
 
