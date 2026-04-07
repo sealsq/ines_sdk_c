@@ -10,7 +10,8 @@
 VAULT-IC 292 and 408 are ready to use secure-elements that provide cryptographic functions,
 INES SDK is compatible with VIC 292 and 408 from Seal SQ (Wisekey Semiconductors) to authenticate device
 
-Contact Seal SQ to get a DEVKIT
+Contact Seal SQ to get a DEVKIT 292/408
+https://www.sealsq.com/contact
 
 Links :
 https://www.sealsq.com/semiconductors/vaultic-secure-elements/vaultic292

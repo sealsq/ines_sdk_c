@@ -62,7 +62,8 @@ int vlt_tls_verify_signature_P256(const unsigned char * hash, int hashLen, unsig
 #ifdef TARGETCHIP_VAULTIC_408
 int vlt_tls_compute_signature_P256(int privKey_index, const unsigned char hash[P256_BYTE_SZ], int hashLen, unsigned char pu8SigR[P256_BYTE_SZ], unsigned char pu8SigS[P256_BYTE_SZ]);
 #else
-int vlt_tls_compute_signature_P256(int keyindex, const unsigned char * pu8Msg, int msgLen, unsigned char *pu8SigR, unsigned char *pu8SigS);
+int vlt_tls_compute_signature_P256(const unsigned char * pu8Msg, int msgLen, unsigned char *pu8SigR, unsigned char *pu8SigS);
+void vlt_tls_select_static_priv_key(int key_id);
 #endif /*TARGETCHIP_VAULTIC_408*/
 
 #ifndef VLT_TLS_NO_ECDH

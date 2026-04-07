@@ -57,8 +57,6 @@ addVaulticToWolfssl()
 firstInstall()
 {
    install
-   submoduleInit
-   checkoutWolfssl
    addVaulticToWolfssl
    echo done, remove this file if you want to do first setup again > ${FIRST_CONFIG_FILE}
 }
