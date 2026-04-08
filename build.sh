@@ -57,11 +57,44 @@ addVaulticToWolfssl()
 firstInstall()
 {
    install
-   submoduleInit
-   checkoutWolfssl
    addVaulticToWolfssl
    echo done, remove this file if you want to do first setup again > ${FIRST_CONFIG_FILE}
 }
+
+buildapp()
+{
+   echo "---INeS SDK : Build LIB START---"
+   CMAKE_OPTS="-DVAULTIC_PRODUCT=${VAULTIC_PRODUCT}"
+   
+   CMAKE_OPTS+=" -DWOLFSSL_USER_SETTINGS=yes -DWOLFSSL_EXAMPLES=no -DWOLFSSL_CRYPT_TESTS=no"
+   
+   if([ ! -z ${COMPILATION_MODE} ] ); then 
+    CMAKE_OPTS+=" -DCOMPILATION_MODE=${COMPILATION_MODE}"
+   fi
+
+   if([ ! -z ${INTERFACE} ] ); then 
+    CMAKE_OPTS+=" -DVAULTIC_COMM=${INTERFACE}"
+   fi
+
+    CMAKE_OPTS+=" -DWITH_WOLFSSL=${CMAKE_BINARY_DIR}/lib/sealsq_inesSDK/extlibs/libwolfssl/wolfssl"
+
+   echo "Running CMAKE"
+   rm -rf build/
+   mkdir build
+   cd build/
+   cmake ${CMAKE_OPTS} ..
+   echo "Cleaning"
+   make clean
+   echo "Building"
+   make all
+
+   if [ -f "./zeroTouchProvisioning_app" ];then
+      echo "Zero Touch Provisioning App in C build";
+   else
+      exit
+   fi
+}
+
 
 ############################################################
 ############################################################
@@ -80,6 +113,9 @@ while getopts ":hbiwv" option; do
       i) # Install Prerequities
 		 echo "Install Requierment"
          install
+         exit;;
+      b) # force build
+         buildapp
          exit;;
       v) # Install Prerequities
 		 echo "Vault-IC with Wolfssl config"

@@ -4,9 +4,9 @@
 [submodule "extlibs/libwolfssl/wolfssl"]
 	path = extlibs/libwolfssl/wolfssl
 	url = https://github.com/wolfSSL/wolfssl.git
-[submodule "lib/libVaultIC/292/vaultic_elib_292/src"]
-	path = lib/libVaultIC/292/vaultic_elib_292/src
-	url = https://git.sealsq.com/elib/292/sealsq-elib-292.git
-[submodule "lib/libVaultIC/408/vaultic_elib_408/src"]
-	path = lib/libVaultIC/408/vaultic_elib_408/src
-	url = https://git.sealsq.com/elib/408/sealsq-elib-408.git
+[submodule "lib/libVaultIC/292/DEVKIT_VIC292_TLS_RPI"]
+	path = lib/libVaultIC/292/DEVKIT_VIC292_TLS_RPI
+	url = https://git.sealsq.com/vaultic/292/devkit_vic292_tls_rpi.git
+[submodule "lib/libVaultIC/408/vaultic_elib_408"]
+	path = lib/libVaultIC/408/vaultic_elib_408
+	url = https://git.sealsq.com/vaultic/408/vaultic-elib_408.git

@@ -182,7 +182,8 @@ int WOLFSSL_VAULTIC_EccSignCb(WOLFSSL* ssl, const byte* in,
     }
 	#else
 	VAULTIC_LOG("[vlt_tls_compute_signature_P256 TARGETCHIP_VAULTIC_292]\n");
-    if (vlt_tls_compute_signature_P256(CurrenVaultickeyIndex,in , inSz, sig_R , sig_S) !=0) {
+    vlt_tls_select_static_priv_key(CurrenVaultickeyIndex);
+    if (vlt_tls_compute_signature_P256(in , inSz, sig_R , sig_S) !=0) {
         VAULTIC_LOG("ERROR: vlt_tls_compute_signature_P256\n");
         return WC_HW_E;
     }

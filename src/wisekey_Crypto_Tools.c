@@ -20,7 +20,7 @@ SPDX-License-Identifier: Apache-2.0*/
 #include "wolfssl/wolfcrypt/asn.h"
 
 #if defined(TARGETCHIP_VAULTIC_292)||defined(TARGETCHIP_VAULTIC_408)
-#include "wolfssl/wolfcrypt/port/wisekey/vaultic.h"
+#include "vaultic_common.h"
 #include "vaultic_tls.h"
 #include "vaultic_tls_config.h"
 #endif
@@ -297,8 +297,9 @@ char *generateCSRwithVAULTIC(ecc_key *ecKey,CertName* certDefaultName)
         return NULL;
 	}
 #else	
-	wkey_log(LOG_INFO,"[vlt_tls_read_operational_pub_key_P256 TARGETCHIP_VAULTIC_292]\n");    
-    if (vlt_tls_read_operational_pub_key_P256(au8Qx, au8Qy) !=0) {
+	wkey_log(LOG_INFO,"[vlt_tls_read_operational_pub_key_P256 TARGETCHIP_VAULTIC_292]\n");
+    vlt_tls_select_static_priv_key(VAULTIC_OPERATIONAL_KEY_INDEX);
+    if (vlt_tls_read_pub_key_P256(au8Qx, au8Qy) !=0) {
         wkey_log(LOG_ERROR,"VAULTIC 292 vlt_tls_read_operational_pub_key_P256\n");
         return NULL;
     }
@@ -360,8 +361,9 @@ char *generateCSRwithVAULTIC(ecc_key *ecKey,CertName* certDefaultName)
 #endif /*TARGETCHIP_VAULTIC_408*/
 
 #ifdef TARGETCHIP_VAULTIC_292 	
-	wkey_log(LOG_INFO,"[vlt_tls_read_pub_key_P256 TARGETCHIP_VAULTIC_292]\n");  
-    if (err=vlt_tls_compute_signature_P256(VAULTIC_OPERATIONAL_KEY_INDEX,hash, P256_BYTE_SZ, sig_R , sig_S) !=0) {
+	wkey_log(LOG_INFO,"[vlt_tls_read_pub_key_P256 TARGETCHIP_VAULTIC_292]\n"); 
+    vlt_tls_select_static_priv_key(VAULTIC_OPERATIONAL_KEY_INDEX);
+    if (err=vlt_tls_compute_signature_P256(hash, P256_BYTE_SZ, sig_R , sig_S) !=0) {
         wkey_log(LOG_ERROR,"WOLFSSL_VAULTIC_EccSignCb %d\n",err);
         return NULL;
     }
